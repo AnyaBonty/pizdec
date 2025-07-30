@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
+from importlib import reload
 from xmlrpc.client import DateTime
 
+import uvicorn
 from fastapi import FastAPI, HTTPException,status,Depends,Body,Path
 from typing import Annotated
 
@@ -20,9 +22,7 @@ from shema import NoteOut
 """
 Base.metadata	Атрибут metadata содержит сведения обо всех таблицах и моделях, которые унаследованы от Base. Он как "схема всех таблиц" SQLAlchemy.
 create_all	Метод create_all() создаёт все таблицы в базе данных, если их ещё нет.
-Он берёт информацию из metadata и отправляет CREATE TABLE ... запросы.
-"""
-@asynccontextmanager
+Он берёт информацию из metadata и отправляет CREATE TABLE ... """
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -73,3 +73,7 @@ async def delete_note(id:Annotated[int,Path()], db:Annotated[AsyncSession,Depend
         'status_code': status.HTTP_200_OK,
         'transaction': 'Category delete is successful'
     }
+
+
+if __name__=='__main__':
+    uvicorn.run('main:app',reload=True)
